@@ -10,12 +10,16 @@ class Fruit {
     }
 
     get info() {
-        return `NAME: ${this.name}
-            [1] SIZE: ${this.size}
-            [2] CALORIES: ${this.calories}
-            [3] HANGMAN RATING: ${this.hangman}
-            [4] SWEETNESS: ${this.sweetness}
-            [5] RARITY: ${this.rarity}`
+        return `NAME: ${this.name}`
+            + `\n[1] SIZE: ${this.size}`
+            + `\n[2] CALORIES: ${this.calories}`
+            + `\n[3] HANGMAN RATING: ${this.hangman}`
+            + `\n[4] SWEETNESS: ${this.sweetness}`
+            + `\n[5] RARITY: ${this.rarity}`
+    }
+
+    get winCount() {
+        return this._winCount
     }
 
     set winCount(value) {
@@ -41,14 +45,6 @@ class Fruit {
 }
 
 class Player {
-    constuctor(name) {
-        this.name = name
-        this.cards = []
-        this.wonCount = 0
-    }
-}
-
-class Player {
     constructor(name) {
         this.name = name
         this.score = 0
@@ -67,15 +63,16 @@ class Game {
         this.pot = 0
         this.currentCard = 0
         this.players = []
-        this.deck = this.shuffle()
+        this.deck = this.shuffle(this.deck)
         this.playGame()
     }
 
-    shuffle() {
-        for (let i = 0; i < this.deck.length - 1; i++) {
-            const random = Math.ceil(Math.random() * (this.deck.length - i));
-            [this.deck[i], this.deck[random]] = [this.deck[random], this.deck[i]]
+    shuffle(deck) {
+        for (let i = 0; i < deck.length - 1; i++) {
+            const random = Math.ceil(Math.random() * (deck.length - i));
+            [deck[i], deck[random]] = [deck[random], deck[i]]
         }
+        return deck
     }
 
     setPlayers() {
@@ -91,14 +88,14 @@ class Game {
     }
 
     playHand() {
-        const hand = this.deck.slice(this.currentCard, this.players.length)
+        const hand = this.deck.slice(this.currentCard, this.players.length + this.currentCard)
         let attribute
         this.pot += this.players.length
 
         while (!["1","2","3","4","5"].includes(attribute)) {
-            attribute = prompt(`PLAYER${this.currentPlayer + 1}\n\n
-                ${hand[this.currentPlayer].info}\n\n
-                Select an attribute (using a number from 1-5)`)
+            attribute = prompt(`PLAYER${this.currentPlayer + 1}\n`
+                + `${hand[this.currentPlayer].info}\n`
+                + `Select an attribute (using a number from 1-5)`)
         }
 
 
@@ -110,9 +107,12 @@ class Game {
 
         if (winningIndexes.length === 1) {
             this.currentPlayer = winningIndexes[0]
-            this.currentPlayer.wonCount += this.pot
-            handwinningIndexes[0].winCount++
+            this.players[this.currentPlayer].score += this.pot
+            hand[this.currentPlayer].winCount += 1
             this.pot = 0
+            console.log(`Player${this.currentPlayer + 1} won the hand`)
+        } else {
+            console.log("The hand was drawn")
         }
 
         this.currentCard += this.players.length
@@ -174,3 +174,4 @@ const populateDeck = () => {
     return deck
 }
 
+new Game(populateDeck())
